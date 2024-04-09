@@ -12,6 +12,7 @@ public class DescricaoValidationChainImpl implements ValidationChain {
 
     private static final Logger logger = LoggerFactory.getLogger(DescricaoValidationChainImpl.class);
     private ValidationChain validationChain;
+
     @Override
     public void setProximaValidacao(ValidationChain chain) {
         validationChain = chain;
@@ -19,8 +20,9 @@ public class DescricaoValidationChainImpl implements ValidationChain {
 
     @Override
     public void validar(Transacao transacao) {
-        logger.info("Validando campo descrição");
+        logger.info("Iniciando validação do campo descrição");
         if (transacao.descricao().isEmpty() || transacao.descricao().length() > 10) {
+            logger.error("Erro ao validar campo descrição");
             throw new CorpoInvalidoException();
         }
         if (Objects.nonNull(validationChain)) {

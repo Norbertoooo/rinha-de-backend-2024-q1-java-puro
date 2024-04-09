@@ -20,8 +20,9 @@ public class ValorValidationChainImpl implements ValidationChain {
 
     @Override
     public void validar(Transacao transacao) {
-        logger.info("Validação de valor negativo");
+        logger.info("Iniciando Validação de valor negativo");
         if (transacao.valor() < 0) {
+            logger.error("Erro ao validar campo valor, valores negativos não são aceitos: {}", transacao.valor());
             throw new CorpoInvalidoException();
         }
 

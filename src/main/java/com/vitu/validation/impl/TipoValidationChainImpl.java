@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class TipoValidationChainImpl implements ValidationChain {
 
-    private static final Logger logger = LoggerFactory.getLogger(TypeNotPresentException.class);
+    private static final Logger logger = LoggerFactory.getLogger(TipoValidationChainImpl.class);
     private ValidationChain validationChain;
 
     @Override
@@ -20,7 +20,7 @@ public class TipoValidationChainImpl implements ValidationChain {
 
     @Override
     public void validar(Transacao transacao) {
-        logger.info("Validando campo tipo");
+        logger.info("Iniciando Validação do campo tipo");
         String tipo = transacao.tipo();
 
         if (tipo.isEmpty() || Boolean.FALSE.equals("c".equalsIgnoreCase(tipo)) &&
@@ -31,6 +31,8 @@ public class TipoValidationChainImpl implements ValidationChain {
         if (Objects.nonNull(validationChain)) {
             logger.info("Validação do campo tipo finalizada, passando para a próxima validação");
             validationChain.validar(transacao);
+        } else {
+            logger.info("Validação do campo tipo finalizada, corrente de validação finalizada");
         }
 
     }

@@ -61,9 +61,4 @@ public class Database {
         return Objects.isNull(databaseUrl) ? poolSizeDefault : Integer.parseInt(databaseUrl);
     }
 
-    public static void closeConnection(Connection connection, int clienteId) throws SQLException {
-        logger.debug("TheadId: {} - fechando conexão com banco de dados - clienteId: {}", Thread.currentThread().threadId(), clienteId);
-        connection.close();
-    }
-
 }

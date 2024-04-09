@@ -20,11 +20,12 @@ public class NotNullValidationChainImpl implements ValidationChain {
 
     @Override
     public void validar(Transacao transacao) {
-        logger.info("Validando se campos do corpo estão nulos");
+        logger.info("Iniciando validação de campos nulos");
         if (Objects.isNull(transacao) || Objects.isNull(transacao.descricao()) || Objects.isNull(transacao.valor()) ||
-            Objects.isNull(transacao.tipo())
+                Objects.isNull(transacao.tipo())
         ) {
-          throw new CorpoInvalidoException();
+            logger.error("Erro ao validar corpo da requisição, campos não podem ser nulos");
+            throw new CorpoInvalidoException();
         }
         if (Objects.nonNull(validationChain)) {
             logger.info("Validação de campos nulos finalizada, passando para a próxima validação");

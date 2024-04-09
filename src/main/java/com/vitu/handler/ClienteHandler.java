@@ -12,11 +12,7 @@ import com.vitu.exception.ClienteNaoEncontradoException;
 import com.vitu.exception.CorpoInvalidoException;
 import com.vitu.service.ExtratoService;
 import com.vitu.service.TransacaoService;
-import com.vitu.validation.impl.DescricaoValidationChainImpl;
-import com.vitu.validation.impl.NotNullValidationChainImpl;
-import com.vitu.validation.ValidationChain;
-import com.vitu.validation.impl.TipoValidationChainImpl;
-import com.vitu.validation.impl.ValorValidationChainImpl;
+import com.vitu.validation.ValidationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +25,10 @@ import java.sql.SQLException;
 
 public class ClienteHandler implements HttpHandler {
 
+    public static final String GET_METHOD = "GET";
+    public static final String POST_METHOD = "POST";
+    public static final String EXTRATO_PATH = "extrato";
+    public static final String TRANSACOES_PATH = "transacoes";
     private final ExtratoService extratoService = new ExtratoService();
     private final TransacaoService transacaoService = new TransacaoService();
     private static final Logger logger = LoggerFactory.getLogger(ClienteHandler.class);
@@ -48,8 +48,7 @@ public class ClienteHandler implements HttpHandler {
 
         int clienteId = Integer.parseInt(path[2]);
 
-        // refatora forma de pegar o path
-        if ("GET".equals(exchange.getRequestMethod()) && "extrato".equals(path[3])) {
+        if (GET_METHOD.equals(exchange.getRequestMethod()) && EXTRATO_PATH.equals(path[3])) {
             try {
                 Extrato extrato = extratoService.obterExtrato(clienteId);
                 this.sendResponse(exchange, 200, extrato);
@@ -65,26 +64,19 @@ public class ClienteHandler implements HttpHandler {
             }
         }
 
-        if ("POST".equals(exchange.getRequestMethod()) && "transacoes".equals(path[3])) {
+        if (POST_METHOD.equals(exchange.getRequestMethod()) && TRANSACOES_PATH.equals(path[3])) {
             try {
-                Transacao transacao = obterRequestBody(exchange);
+                Transacao transacao = this.obterRequestBody(exchange);
 
-                ValidationChain notNullChain = new NotNullValidationChainImpl();
-                ValidationChain descricaoChain = new DescricaoValidationChainImpl();
-                ValidationChain tipoChain = new TipoValidationChainImpl();
-                ValorValidationChainImpl validationChain = new ValorValidationChainImpl();
-
-                notNullChain.setProximaValidacao(descricaoChain);
-                descricaoChain.setProximaValidacao(validationChain);
-                validationChain.setProximaValidacao(tipoChain);
-                notNullChain.validar(transacao);
+                ValidationRequest.validate(transacao);
 
                 TransacaoResponse transacaoResponse = transacaoService.processarTransacao(transacao, clienteId);
+
                 this.sendResponse(exchange, 200, transacaoResponse);
             } catch (SQLException | CorpoInvalidoException | IOException e) {
                 logger.error("Erro: ", e);
                 this.returnUnprocessableEntity(exchange);
-            } catch (ClienteNaoEncontradoException e){
+            } catch (ClienteNaoEncontradoException e) {
                 logger.error("Erro: ", e);
                 this.returnNotFound(exchange);
             }
